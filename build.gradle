@@ -1,0 +1,73 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'fr.giwi.nifi2md'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    jacksonVersion = '2.17.2'
+    picocliVersion = '4.7.6'
+    junitVersion = '5.10.3'
+}
+
+dependencies {
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "info.picocli:picocli:${picocliVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'fr.giwi.nifi2md.Main'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    testLogging {
+        events 'failed', 'skipped'
+        exceptionFormat 'full'
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    standardInput = System.in
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+/**
+ * Self-contained executable jar: build/libs/nifi2md-all-<version>.jar
+ * Run with:  java -jar build/libs/nifi2md-all-0.1.0.jar --help
+ */
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    description = 'Builds an executable uber-jar bundling all runtime dependencies.'
+    archiveClassifier = 'all'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.directory ? it : zipTree(it) }
+    }
+    excludes = [
+            'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA',
+            'module-info.class', 'META-INF/versions/*/module-info.class'
+    ]
+}
+
+tasks.named('build') {
+    dependsOn 'fatJar'
+}
