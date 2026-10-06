@@ -79,26 +79,7 @@ test/ACME-docs/
 | `( name )` round | Processor without a mapped pattern |
 | `[[ name ]]` subroutine | Nested process group (opens its own page) |
 
-Connections pointing at a port of a child group are drawn against that child group
-node, so each level stays readable.
-
-## Project layout
-
-```
-src/main/java/fr/giwi/nifi2md/
-├── Main.java                    # picocli CLI
-├── model/                       # Jackson-mapped NiFi flow model + FlowParser
-├── eip/                         # EipPattern, EipCatalog (NiFi type -> EIP pattern)
-└── render/                      # MermaidRenderer, MarkdownGenerator, Texts
-```
-
-## Sample
-
-`test/ACME.json` is a real flow definition (7 process groups, 21 processors,
-40 connections). Generated output lives in `test/ACME-docs/`, and the generated
-Mermaid diagrams were rendered with
-[`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) to confirm
-they are valid.
+Connections pointing at a port of a child group are drawn against that child group node, so each level stays readable.
 
 ## License
 
